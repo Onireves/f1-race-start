@@ -43,46 +43,51 @@
         .tyre-cold { color: #3b82f6; border-color: #3b82f6; }
         .tyre-ok { color: #10b981; border-color: #374151; }
 
-        /* Scrollbar hide */
-        ::-webkit-scrollbar { display: none; }
+        /* Scrollbar hide but keep functionality */
+        .custom-scrollbar::-webkit-scrollbar { display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="text-white h-screen overflow-hidden">
 
     <!-- MAIN MENU -->
-    <div id="menu-view" class="h-full flex flex-col items-center justify-center p-4 overflow-y-auto">
-        <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mb-2 italic uppercase">
+    <div id="menu-view" class="h-full w-full flex flex-col items-center py-12 px-4 overflow-y-auto custom-scrollbar">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mb-2 italic uppercase flex-shrink-0">
             F1 Training Hub
         </h1>
-        <p class="text-gray-400 mb-8 text-center max-w-md">Test your reflexes, precision, and strategy with these driver simulation drills.</p>
+        <p class="text-gray-400 mb-10 text-center max-w-md flex-shrink-0">Master the essential skills of a Formula 1 driver.</p>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl pb-12">
             <!-- Card 1: Lights Out -->
-            <button onclick="switchView('game-reaction')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-all hover:shadow-red-900/20 hover:shadow-xl text-left">
+            <button onclick="switchView('game-reaction')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-all hover:shadow-red-900/20 hover:shadow-xl text-left h-full">
                 <div class="absolute top-4 right-4 text-gray-600 group-hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-red-400">Lights Out</h3>
-                <p class="text-sm text-gray-400">Classic F1 start reaction test. Wait for the lights to go dark.</p>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-red-400">Lights Out</h3>
+                <p class="text-sm text-gray-400 leading-relaxed mb-3">The ultimate test of raw reaction speed. Mimics the exact F1 start sequence: 5 lights red, then instant darkness.</p>
+                <span class="inline-block text-xs font-bold text-red-500 bg-red-900/20 px-2 py-1 rounded">SKILL: VISUAL REFLEXES</span>
             </button>
 
             <!-- Card 2: ERS -->
-            <button onclick="switchView('game-ers')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500 transition-all hover:shadow-green-900/20 hover:shadow-xl text-left">
+            <button onclick="switchView('game-ers')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500 transition-all hover:shadow-green-900/20 hover:shadow-xl text-left h-full">
                 <div class="absolute top-4 right-4 text-gray-600 group-hover:text-green-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-green-400">ERS Management</h3>
-                <p class="text-sm text-gray-400">Deploy or Harvest? React to track conditions instantly.</p>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-green-400">ERS Strategy</h3>
+                <p class="text-sm text-gray-400 leading-relaxed mb-3">Manage your hybrid energy. You must make split-second decisions: 'Deploy' on straights for speed, 'Harvest' in corners to recharge.</p>
+                <span class="inline-block text-xs font-bold text-green-500 bg-green-900/20 px-2 py-1 rounded">SKILL: COGNITIVE PROCESSING</span>
             </button>
 
             <!-- Card 3: Safety Car -->
-            <button onclick="switchView('game-safetycar')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-all hover:shadow-yellow-900/20 hover:shadow-xl text-left">
+            <button onclick="switchView('game-safetycar')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-all hover:shadow-yellow-900/20 hover:shadow-xl text-left h-full">
                 <div class="absolute top-4 right-4 text-gray-600 group-hover:text-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
-                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-yellow-400">Safety Car Delta</h3>
-                <p class="text-sm text-gray-400">Stop exactly on the delta line. Precision timing required.</p>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-yellow-400">Safety Car Delta</h3>
+                <p class="text-sm text-gray-400 leading-relaxed mb-3">Maintain the perfect distance. You are approaching the Safety Car line—hit the brakes at the exact moment to minimize your distance delta.</p>
+                <span class="inline-block text-xs font-bold text-yellow-500 bg-yellow-900/20 px-2 py-1 rounded">SKILL: PRECISION TIMING</span>
             </button>
 
             <!-- Card 4: Tyre Temp -->
-            <button onclick="switchView('game-tyre')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-500 transition-all hover:shadow-orange-900/20 hover:shadow-xl text-left">
+            <button onclick="switchView('game-tyre')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-500 transition-all hover:shadow-orange-900/20 hover:shadow-xl text-left h-full">
                 <div class="absolute top-4 right-4 text-gray-600 group-hover:text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-orange-400">Tyre Whisperer</h3>
-                <p class="text-sm text-gray-400">Monitor temps. Box immediately when 3+ tyres overheat.</p>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-orange-400">Tyre Whisperer</h3>
+                <p class="text-sm text-gray-400 leading-relaxed mb-3">Monitor telemetry for all 4 tyres. They fluctuate constantly. Spot the pattern when the majority overheat and call for a Pit Stop instantly.</p>
+                <span class="inline-block text-xs font-bold text-orange-500 bg-orange-900/20 px-2 py-1 rounded">SKILL: PATTERN RECOGNITION</span>
             </button>
         </div>
     </div>
@@ -115,6 +120,9 @@
                     <span class="text-2xl text-green-400 font-bold ml-1">ms</span>
                 </div>
                 <p id="r-comp" class="text-lg text-gray-300 mt-4 max-w-xl leading-relaxed hidden"></p>
+                <p id="r-sub-hint" class="text-gray-500 mt-6 text-sm uppercase tracking-widest invisible">
+                    Wait for cooldown...
+                </p>
             </div>
         </div>
     </div>
@@ -167,8 +175,8 @@
             <button id="sc-action-btn" onclick="scAction()" class="w-64 h-24 bg-gray-700 rounded-xl border-b-8 border-gray-900 active:border-b-0 active:translate-y-2 text-2xl font-black tracking-widest uppercase transition-all">Start</button>
             
             <div id="sc-result-box" class="mt-8 h-20 opacity-0 transition-opacity">
-                <p class="text-gray-400 text-sm uppercase">Delta Deviation</p>
-                <p id="sc-score" class="digital-font text-4xl font-bold text-white">0px</p>
+                <p class="text-gray-400 text-sm uppercase">Distance to Target</p>
+                <p id="sc-score" class="digital-font text-4xl font-bold text-white">0.00m</p>
                 <p id="sc-comment" class="text-sm text-yellow-500 mt-1"></p>
             </div>
         </div>
@@ -257,6 +265,7 @@
         let rCurrentState = rState.IDLE;
         let rStartTime = 0;
         let rTimeout;
+        let rOnCooldown = false;
         
         const rLights = [1,2,3,4,5].map(i => document.getElementById(`light-${i}`));
         const rArea = document.getElementById('game-reaction');
@@ -265,6 +274,9 @@
             if(rArea.style.display === 'none') return;
             // Prevent triggering if clicking back button (though z-index handles it, safe to check)
             if(e.target.closest('#backBtn')) return;
+            // Prevent if on cooldown
+            if(rOnCooldown) return;
+            
             handleRInput();
         });
 
@@ -281,8 +293,10 @@
             document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-gray-100";
             document.getElementById('r-time-box').classList.add('hidden');
             document.getElementById('r-comp').classList.add('hidden');
+            document.getElementById('r-sub-hint').classList.add('invisible');
             rArea.classList.remove('bg-red-900');
             rArea.classList.add('bg-gray-900');
+            rOnCooldown = false;
         }
 
         function rStart() {
@@ -311,6 +325,7 @@
             document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-red-500";
             rLights.forEach(l => l.parentElement.classList.add('shake'));
             setTimeout(() => rLights.forEach(l => l.parentElement.classList.remove('shake')), 500);
+            startCooldown();
         }
 
         function rGo() {
@@ -333,6 +348,21 @@
             const comp = document.getElementById('r-comp');
             comp.innerHTML = time < 200 ? "F1 Driver Level!" : time < 270 ? "Average Human" : "Slow Start";
             comp.classList.remove('hidden');
+            
+            startCooldown();
+        }
+        
+        function startCooldown() {
+            rOnCooldown = true;
+            const hint = document.getElementById('r-sub-hint');
+            hint.innerText = "Cooldown...";
+            hint.classList.remove('invisible');
+            hint.classList.add('animate-pulse');
+            
+            setTimeout(() => {
+                rOnCooldown = false;
+                hint.innerText = "Click to try again";
+            }, 2000);
         }
 
         // ==========================================
@@ -479,18 +509,22 @@
             // scPos is left %. 
             // Car center ~ scPos + 3% (width is 40px, track ~600px)
             const center = scPos + 3; 
-            const diff = Math.abs(50 - center).toFixed(1);
+            const diff = Math.abs(50 - center);
+            
+            // Convert arbitrary % diff to "meters" for gameplay feel
+            // Scale: 0-2% -> 0.00m - 0.50m
+            const meters = (diff * 0.2).toFixed(2);
             
             const scoreEl = document.getElementById('sc-score');
             const commentEl = document.getElementById('sc-comment');
             document.getElementById('sc-result-box').style.opacity = '1';
             
-            scoreEl.innerText = diff + "%";
+            scoreEl.innerText = meters + "m";
             
-            if (diff < 2) {
+            if (meters < 0.2) {
                 scoreEl.className = "digital-font text-4xl font-bold text-green-500";
                 commentEl.innerText = "Perfect Delta Management";
-            } else if (diff < 10) {
+            } else if (meters < 1.0) {
                 scoreEl.className = "digital-font text-4xl font-bold text-yellow-500";
                 commentEl.innerText = "Acceptable";
             } else {
