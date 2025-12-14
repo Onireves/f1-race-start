@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Reaction Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
+            user-select: none; /* Prevents text selection during rapid clicking */
+        }
+        .digital-font {
+            font-family: 'Roboto Mono', monospace;
+        }
+        .light {
+            transition: background-color 0.1s;
+            box-shadow: 0 0 0 2px #1f2937; /* border-gray-800 */
+        }
+        .light.on {
+            background-color: #ef4444; /* red-500 */
+            box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6);
+            border-color: #ef4444;
+        }
+        .light.off {
+            background-color: #374151; /* gray-700 */
+        }
+        /* Shake animation for false start */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.2s ease-in-out 0s 2;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white h-screen flex flex-col items-center justify-center overflow-hidden cursor-pointer" id="gameArea">
+
+    <!-- Header / Title -->
+    <div class="absolute top-8 text-center px-4">
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-100 uppercase italic">
+            Lights Out
+        </h1>
+        <p class="text-gray-400 mt-2 text-sm md:text-base">Tap anywhere to start. Tap again when lights go out.</p>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4">
+        
+        <!-- F1 Light Gantry -->
+        <div class="bg-black p-4 md:p-8 rounded-2xl shadow-2xl border-b-4 border-gray-800 w-full max-w-2xl mx-auto mb-12 relative">
+            <!-- Gantry Housing -->
+            <div class="flex justify-between items-center gap-2 md:gap-4">
+                <!-- 5 Lights -->
+                <div id="light-1" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                <div id="light-2" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                <div id="light-3" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                <div id="light-4" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                <div id="light-5" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+            </div>
+            <!-- Gantry Structure Visuals (Lines) -->
+            <div class="absolute -top-4 left-10 right-10 h-4 border-t-2 border-l-2 border-r-2 border-gray-600 rounded-t-lg opacity-50"></div>
+        </div>
+
+        <!-- Status / Result Display -->
+        <div id="messageContainer" class="text-center h-48 flex flex-col items-center justify-center transition-opacity duration-200">
+            
+            <!-- Main State Text -->
+            <h2 id="statusText" class="text-4xl md:text-6xl font-bold mb-4 text-gray-100">
+                Click to Start
+            </h2>
+            
+            <!-- Result Time -->
+            <div id="timeDisplay" class="hidden">
+                <span id="msText" class="digital-font text-6xl md:text-8xl font-bold text-green-400 tracking-tighter">000</span>
+                <span class="text-2xl text-green-400 font-bold ml-1">ms</span>
+            </div>
+
+            <!-- Comparison / Description -->
+            <p id="comparisonText" class="text-lg md:text-xl text-gray-300 mt-4 max-w-xl leading-relaxed hidden">
+                <!-- Comparison text goes here -->
+            </p>
+
+            <!-- Play Again Hint -->
+            <p id="subHint" class="text-gray-500 mt-8 text-sm uppercase tracking-widest animate-pulse hidden">
+                Click to try again
+            </p>
+        </div>
+    </div>
+
+    <!-- History / Best Score (Bottom Right) -->
+    <div class="absolute bottom-6 right-6 text-right hidden md:block">
+        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Best Time</p>
+        <p id="bestScore" class="digital-font text-2xl text-gray-300">-- ms</p>
+    </div>
+
+    <script>
+        // --- Game State ---
+        const STATE = {
+            IDLE: 'idle',           // Waiting for user to start
+            COUNTDOWN: 'countdown', // Lights turning on red
+            READY: 'ready',         // All red, waiting for random delay
+            WAITING: 'waiting',     // Lights out, waiting for click (This is the reaction phase)
+            FINISHED: 'finished',   // Result shown
+            FALSE_START: 'false'    // Clicked too early
+        };
+
+        let currentState = STATE.IDLE;
+        let startTime = 0;
+        let timeoutIds = []; // To clear timers on reset
+        let bestTime = Infinity;
+
+        // --- DOM Elements ---
+        const lights = [
+            document.getElementById('light-1'),
+            document.getElementById('light-2'),
+            document.getElementById('light-3'),
+            document.getElementById('light-4'),
+            document.getElementById('light-5')
+        ];
+        const statusText = document.getElementById('statusText');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const msText = document.getElementById('msText');
+        const comparisonText = document.getElementById('comparisonText');
+        const subHint = document.getElementById('subHint');
+        const gameArea = document.getElementById('gameArea');
+        const bestScoreEl = document.getElementById('bestScore');
+
+        // --- Event Listeners ---
+        // We use 'pointerdown' for faster response than 'click' on touch devices
+        gameArea.addEventListener('pointerdown', handleInput);
+        
+        // Prevent default spacebar scrolling and use it for play
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                handleInput();
+            }
+        });
+
+        function handleInput() {
+            switch (currentState) {
+                case STATE.IDLE:
+                case STATE.FINISHED:
+                case STATE.FALSE_START:
+                    startSequence();
+                    break;
+                case STATE.COUNTDOWN:
+                case STATE.READY:
+                    triggerFalseStart();
+                    break;
+                case STATE.WAITING:
+                    finishGame();
+                    break;
+            }
+        }
+
+        // --- Core Logic ---
+
+        function resetGame() {
+            // Clear any pending timers
+            timeoutIds.forEach(id => clearTimeout(id));
+            timeoutIds = [];
+            
+            // Reset Lights
+            lights.forEach(l => {
+                l.classList.remove('on');
+                l.classList.add('off');
+            });
+
+            // Reset UI
+            gameArea.classList.remove('bg-red-900', 'bg-green-900'); // Remove status bg colors
+            gameArea.classList.add('bg-gray-900');
+            timeDisplay.classList.add('hidden');
+            comparisonText.classList.add('hidden');
+            subHint.classList.add('hidden');
+        }
+
+        function startSequence() {
+            resetGame();
+            currentState = STATE.COUNTDOWN;
+            statusText.innerText = "Wait for it...";
+            statusText.className = "text-4xl md:text-6xl font-bold mb-4 text-gray-100";
+
+            // Light up sequence: 1 second interval between lights
+            let delay = 1000;
+            lights.forEach((light, index) => {
+                const id = setTimeout(() => {
+                    light.classList.remove('off');
+                    light.classList.add('on');
+                    
+                    // If this is the last light, move to READY state
+                    if (index === 4) {
+                        currentState = STATE.READY;
+                        startRandomWait();
+                    }
+                }, delay);
+                timeoutIds.push(id);
+                delay += 1000;
+            });
+        }
+
+        function startRandomWait() {
+            // F1 lights hold between 0.2s and 3.0s after all 5 are on
+            const randomDelay = Math.floor(Math.random() * 2800) + 200; 
+            
+            const id = setTimeout(() => {
+                lightsOut();
+            }, randomDelay);
+            timeoutIds.push(id);
+        }
+
+        function lightsOut() {
+            // Turn all lights off
+            lights.forEach(l => {
+                l.classList.remove('on');
+                l.classList.add('off');
+            });
+
+            currentState = STATE.WAITING;
+            startTime = performance.now(); // High precision timer
+            
+            // Visual change for the background (subtle flash)
+            gameArea.classList.remove('bg-gray-900');
+            gameArea.classList.add('bg-gray-800');
+            statusText.innerText = "GO!";
+        }
+
+        function finishGame() {
+            const endTime = performance.now();
+            const reactionTime = Math.round(endTime - startTime);
+            currentState = STATE.FINISHED;
+
+            // Update Best Score
+            if (reactionTime < bestTime) {
+                bestTime = reactionTime;
+                bestScoreEl.innerText = `${bestTime} ms`;
+            }
+
+            // Show Result
+            statusText.innerText = "";
+            msText.innerText = reactionTime;
+            timeDisplay.classList.remove('hidden');
+            
+            // Get comparison text
+            const comparison = getComparison(reactionTime);
+            comparisonText.innerHTML = comparison;
+            comparisonText.classList.remove('hidden');
+            
+            subHint.classList.remove('hidden');
+            gameArea.classList.add('bg-gray-900'); // Revert bg
+        }
+
+        function triggerFalseStart() {
+            resetGame(); // Stop the timers
+            currentState = STATE.FALSE_START;
+            
+            // Visuals
+            statusText.innerText = "JUMP START!";
+            statusText.className = "text-4xl md:text-6xl font-bold mb-4 text-red-500";
+            comparisonText.innerText = "You went before the lights went out! Too eager.";
+            comparisonText.classList.remove('hidden');
+            subHint.classList.remove('hidden');
+            
+            // Shake effect
+            lights.forEach(l => l.parentElement.classList.add('shake'));
+            setTimeout(() => {
+                lights.forEach(l => l.parentElement.classList.remove('shake'));
+            }, 500);
+        }
+
+        // --- Comparison Data ---
+        function getComparison(ms) {
+            if (ms < 100) {
+                return `<span class="text-yellow-400 font-bold">Pure Luck or Prediction!</span><br> This is faster than humanly possible for a visual reaction. In athletics, anything under 100ms is considered a false start.`;
+            } else if (ms < 160) {
+                return `<span class="text-purple-400 font-bold">F1 Legend Status</span><br> You are reacting as fast as an elite F1 driver (like Bottas or Verstappen) or an Olympic sprinter leaving the blocks.`;
+            } else if (ms < 200) {
+                return `<span class="text-blue-400 font-bold">Pro Gamer Speed</span><br> This is extremely fast—common among professional Esports players and competitive drivers.`;
+            } else if (ms < 230) {
+                return `<span class="text-green-400 font-bold">Very Sharp</span><br> Faster than the average young adult. Comparable to a rattlesnake strike (~200ms).`;
+            } else if (ms < 270) {
+                return `<span class="text-gray-300 font-bold">Average Human</span><br> This is the standard visual reaction time for most people.`;
+            } else if (ms < 350) {
+                return `<span class="text-gray-400 font-bold">Blink of an Eye</span><br> Your reaction was roughly the same duration as a human eye blink (100-400ms).`;
+            } else if (ms < 450) {
+                return `<span class="text-orange-400 font-bold">Baseball Pitch</span><br> In this time, a 90mph fastball has traveled from the pitcher's mound to home plate.`;
+            } else if (ms < 600) {
+                return `<span class="text-orange-500 font-bold">Pain Perception</span><br> It takes about this long for your brain to consciously register touching a hot stove.`;
+            } else if (ms < 1000) {
+                return `<span class="text-red-400 font-bold">Human Heartbeat</span><br> Your reaction took about as long as one beat of a resting human heart.`;
+            } else {
+                return `<span class="text-red-500 font-bold">A Deep Breath</span><br> Did you fall asleep at the wheel? That was over a second!`;
+            }
+        }
+    </script>
+</body>
+</html>
