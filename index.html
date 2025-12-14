@@ -11,7 +11,8 @@
             font-family: 'Inter', sans-serif;
             touch-action: manipulation;
             user-select: none;
-            background-color: #111827; /* gray-900 */
+            background-color: #0f172a; /* Slate 900 - slightly cooler dark bg */
+            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 70%);
         }
         .digital-font { font-family: 'Roboto Mono', monospace; }
         
@@ -21,8 +22,8 @@
         
         /* F1 Lights (Game 1) */
         .light { transition: background-color 0.1s; box-shadow: 0 0 0 2px #1f2937; }
-        .light.on { background-color: #ef4444; box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6); border-color: #ef4444; }
-        .light.off { background-color: #374151; }
+        .light.on { background-color: #ef4444; box-shadow: 0 0 30px 10px rgba(239, 68, 68, 0.6); border-color: #ef4444; }
+        .light.off { background-color: #334155; }
         
         /* Animations */
         @keyframes shake {
@@ -33,93 +34,173 @@
         .shake { animation: shake 0.2s ease-in-out 0s 2; }
         
         /* Safety Car (Game 3) */
-        #sc-track { position: relative; width: 100%; height: 60px; background: #374151; overflow: hidden; border-radius: 8px; }
-        #sc-target { position: absolute; left: 50%; top: 0; bottom: 0; width: 60px; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; transform: translateX(-50%); z-index: 1; }
-        #sc-car { position: absolute; top: 10px; width: 40px; height: 40px; background: #fbbf24; border-radius: 4px; box-shadow: 0 0 10px #fbbf24; z-index: 2; transition: transform 0.1s; }
+        #sc-track { position: relative; width: 100%; height: 60px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); overflow: hidden; border-radius: 12px; backdrop-filter: blur(5px); }
+        #sc-target { position: absolute; left: 50%; top: 0; bottom: 0; width: 60px; background: rgba(16, 185, 129, 0.1); border-left: 2px solid #10b981; border-right: 2px solid #10b981; transform: translateX(-50%); z-index: 1; box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        #sc-car { position: absolute; top: 10px; width: 40px; height: 40px; background: #fbbf24; border-radius: 8px; box-shadow: 0 0 15px #fbbf24; z-index: 2; transition: transform 0.1s; }
 
         /* Tyre (Game 4) */
-        .tyre-box { transition: color 0.2s; }
-        .tyre-hot { color: #ef4444; border-color: #ef4444; }
-        .tyre-cold { color: #3b82f6; border-color: #3b82f6; }
-        .tyre-ok { color: #10b981; border-color: #374151; }
+        .tyre-box { transition: all 0.3s; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); }
+        .tyre-hot { color: #ef4444; border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.2); }
+        .tyre-cold { color: #3b82f6; border-color: rgba(59, 130, 246, 0.5); background: rgba(59, 130, 246, 0.1); }
+        .tyre-ok { color: #10b981; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
 
-        /* Scrollbar hide but keep functionality */
+        /* Scrollbar */
         .custom-scrollbar::-webkit-scrollbar { display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* --- LIQUID GLASS STYLES --- */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.2); /* Highlight on top */
+            border-left: 1px solid rgba(255, 255, 255, 0.15); /* Subtle highlight left */
+            box-shadow: 
+                0 4px 24px -1px rgba(0, 0, 0, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Shine Gradient Overlay */
+        .glass-btn::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(
+                135deg, 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(255, 255, 255, 0) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            );
+            pointer-events: none;
+        }
+
+        /* Hover State */
+        .glass-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 20px 40px -5px rgba(0, 0, 0, 0.4),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-top-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Active/Click State */
+        .glass-btn:active {
+            transform: translateY(2px) scale(0.98);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+        }
+
+        /* Specific Color Glows on Hover */
+        .glass-red:hover { box-shadow: 0 20px 40px -5px rgba(239, 68, 68, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1); border-color: rgba(239, 68, 68, 0.3); }
+        .glass-green:hover { box-shadow: 0 20px 40px -5px rgba(34, 197, 94, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1); border-color: rgba(34, 197, 94, 0.3); }
+        .glass-yellow:hover { box-shadow: 0 20px 40px -5px rgba(234, 179, 8, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1); border-color: rgba(234, 179, 8, 0.3); }
+        .glass-orange:hover { box-shadow: 0 20px 40px -5px rgba(249, 115, 22, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1); border-color: rgba(249, 115, 22, 0.3); }
+
+        /* Action Buttons (Solid Glass) */
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* ERS Button Specifics */
+        .glass-deploy { background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(220, 38, 38, 0.02)); border-color: rgba(220, 38, 38, 0.3); }
+        .glass-deploy:hover { background: linear-gradient(135deg, rgba(220, 38, 38, 0.3), rgba(220, 38, 38, 0.1)); box-shadow: 0 0 30px rgba(220, 38, 38, 0.3); border-color: rgba(220, 38, 38, 0.6); }
+        
+        .glass-harvest { background: linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(22, 163, 74, 0.02)); border-color: rgba(22, 163, 74, 0.3); }
+        .glass-harvest:hover { background: linear-gradient(135deg, rgba(22, 163, 74, 0.3), rgba(22, 163, 74, 0.1)); box-shadow: 0 0 30px rgba(22, 163, 74, 0.3); border-color: rgba(22, 163, 74, 0.6); }
+
     </style>
 </head>
 <body class="text-white h-screen overflow-hidden">
 
     <!-- MAIN MENU -->
     <div id="menu-view" class="h-full w-full flex flex-col items-center py-12 px-4 overflow-y-auto custom-scrollbar">
-        <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mb-2 italic uppercase flex-shrink-0">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mb-2 italic uppercase flex-shrink-0 drop-shadow-lg">
             F1 Training Hub
         </h1>
         <p class="text-gray-400 mb-10 text-center max-w-md flex-shrink-0">Master the essential skills of a Formula 1 driver.</p>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl pb-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl pb-12">
             <!-- Card 1: Lights Out -->
-            <button onclick="switchView('game-reaction')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-all hover:shadow-red-900/20 hover:shadow-xl text-left h-full">
-                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-red-400">Lights Out</h3>
-                <p class="text-sm text-gray-400 leading-relaxed mb-3">The ultimate test of raw reaction speed. Mimics the exact F1 start sequence: 5 lights red, then instant darkness.</p>
-                <span class="inline-block text-xs font-bold text-red-500 bg-red-900/20 px-2 py-1 rounded">SKILL: VISUAL REFLEXES</span>
+            <button onclick="switchView('game-reaction')" class="glass-btn glass-red p-8 text-left h-full group">
+                <div class="absolute top-6 right-6 text-gray-500 group-hover:text-red-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-red-300 transition-colors">Lights Out</h3>
+                <p class="text-sm text-gray-300 leading-relaxed mb-4 font-light">The ultimate test of raw reaction speed. Mimics the exact F1 start sequence: 5 lights red, then instant darkness.</p>
+                <span class="inline-block text-[10px] font-bold text-red-300 bg-red-900/40 border border-red-500/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-widest">VISUAL REFLEXES</span>
             </button>
 
             <!-- Card 2: ERS -->
-            <button onclick="switchView('game-ers')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500 transition-all hover:shadow-green-900/20 hover:shadow-xl text-left h-full">
-                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-green-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-green-400">ERS Strategy</h3>
-                <p class="text-sm text-gray-400 leading-relaxed mb-3">Manage your hybrid energy. You must make split-second decisions: 'Deploy' on straights for speed, 'Harvest' in corners to recharge.</p>
-                <span class="inline-block text-xs font-bold text-green-500 bg-green-900/20 px-2 py-1 rounded">SKILL: COGNITIVE PROCESSING</span>
+            <button onclick="switchView('game-ers')" class="glass-btn glass-green p-8 text-left h-full group">
+                <div class="absolute top-6 right-6 text-gray-500 group-hover:text-green-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-green-300 transition-colors">ERS Strategy</h3>
+                <p class="text-sm text-gray-300 leading-relaxed mb-4 font-light">Manage your hybrid energy. You must make split-second decisions: 'Deploy' on straights for speed, 'Harvest' in corners.</p>
+                <span class="inline-block text-[10px] font-bold text-green-300 bg-green-900/40 border border-green-500/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-widest">COGNITIVE</span>
             </button>
 
             <!-- Card 3: Safety Car -->
-            <button onclick="switchView('game-safetycar')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-all hover:shadow-yellow-900/20 hover:shadow-xl text-left h-full">
-                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-yellow-400">Safety Car Delta</h3>
-                <p class="text-sm text-gray-400 leading-relaxed mb-3">Maintain the perfect distance. You are approaching the Safety Car line—hit the brakes at the exact moment to minimize your distance delta.</p>
-                <span class="inline-block text-xs font-bold text-yellow-500 bg-yellow-900/20 px-2 py-1 rounded">SKILL: PRECISION TIMING</span>
+            <button onclick="switchView('game-safetycar')" class="glass-btn glass-yellow p-8 text-left h-full group">
+                <div class="absolute top-6 right-6 text-gray-500 group-hover:text-yellow-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
+                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-yellow-300 transition-colors">Safety Car Delta</h3>
+                <p class="text-sm text-gray-300 leading-relaxed mb-4 font-light">Maintain the perfect distance. You are approaching the Safety Car line—hit the brakes at the exact moment to minimize delta.</p>
+                <span class="inline-block text-[10px] font-bold text-yellow-300 bg-yellow-900/40 border border-yellow-500/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-widest">TIMING</span>
             </button>
 
             <!-- Card 4: Tyre Temp -->
-            <button onclick="switchView('game-tyre')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-500 transition-all hover:shadow-orange-900/20 hover:shadow-xl text-left h-full">
-                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-orange-400">Tyre Whisperer</h3>
-                <p class="text-sm text-gray-400 leading-relaxed mb-3">Monitor telemetry for all 4 tyres. They fluctuate constantly. Spot the pattern when the majority overheat and call for a Pit Stop instantly.</p>
-                <span class="inline-block text-xs font-bold text-orange-500 bg-orange-900/20 px-2 py-1 rounded">SKILL: PATTERN RECOGNITION</span>
+            <button onclick="switchView('game-tyre')" class="glass-btn glass-orange p-8 text-left h-full group">
+                <div class="absolute top-6 right-6 text-gray-500 group-hover:text-orange-400 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <h3 class="text-2xl font-bold text-white mb-3 group-hover:text-orange-300 transition-colors">Tyre Whisperer</h3>
+                <p class="text-sm text-gray-300 leading-relaxed mb-4 font-light">Monitor telemetry for all 4 tyres. They fluctuate constantly. Spot the pattern when the majority overheat and call for a Pit Stop.</p>
+                <span class="inline-block text-[10px] font-bold text-orange-300 bg-orange-900/40 border border-orange-500/20 px-3 py-1 rounded-full backdrop-blur-sm tracking-widest">PATTERN RECOG</span>
             </button>
         </div>
     </div>
 
     <!-- GLOBAL BACK BUTTON -->
-    <button id="backBtn" onclick="goToMenu()" class="hidden absolute top-4 left-4 z-50 flex items-center gap-2 text-gray-400 hover:text-white uppercase text-xs font-bold tracking-widest bg-gray-800/50 px-3 py-1 rounded-full border border-gray-700">
+    <button id="backBtn" onclick="goToMenu()" class="hidden absolute top-6 left-6 z-50 flex items-center gap-2 text-gray-300 hover:text-white uppercase text-xs font-bold tracking-widest action-btn px-4 py-2">
         <span>&larr; Menu</span>
     </button>
 
     <!-- GAME 1: REACTION TEST (Original) -->
-    <div id="game-reaction" class="game-view bg-gray-900 cursor-pointer">
+    <div id="game-reaction" class="game-view cursor-pointer">
         <div class="absolute top-8 text-center px-4 w-full">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-100 uppercase italic">Lights Out</h1>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-100 uppercase italic drop-shadow-lg">Lights Out</h1>
         </div>
         <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4 mt-12">
-            <div class="bg-black p-4 md:p-8 rounded-2xl shadow-2xl border-b-4 border-gray-800 w-full max-w-2xl mx-auto mb-12 relative">
-                <div class="flex justify-between items-center gap-2 md:gap-4">
-                    <div id="light-1" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                    <div id="light-2" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                    <div id="light-3" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                    <div id="light-4" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                    <div id="light-5" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+            <div class="glass-btn bg-black/40 p-6 md:p-10 w-full max-w-2xl mx-auto mb-12 relative flex justify-center shadow-2xl">
+                <div class="flex justify-between items-center gap-2 md:gap-4 relative z-10">
+                    <div id="light-1" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-slate-700 border-4 border-slate-800"></div>
+                    <div id="light-2" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-slate-700 border-4 border-slate-800"></div>
+                    <div id="light-3" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-slate-700 border-4 border-slate-800"></div>
+                    <div id="light-4" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-slate-700 border-4 border-slate-800"></div>
+                    <div id="light-5" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-slate-700 border-4 border-slate-800"></div>
                 </div>
-                <div class="absolute -top-4 left-10 right-10 h-4 border-t-2 border-l-2 border-r-2 border-gray-600 rounded-t-lg opacity-50"></div>
             </div>
             <div id="r-msg" class="text-center h-48 flex flex-col items-center justify-center">
-                <h2 id="r-status" class="text-4xl md:text-6xl font-bold mb-4 text-gray-100">Click to Start</h2>
+                <h2 id="r-status" class="text-4xl md:text-6xl font-bold mb-4 text-white drop-shadow-md">Click to Start</h2>
                 <div id="r-time-box" class="hidden">
-                    <span id="r-ms" class="digital-font text-6xl md:text-8xl font-bold text-green-400 tracking-tighter">000</span>
+                    <span id="r-ms" class="digital-font text-6xl md:text-8xl font-bold text-green-400 tracking-tighter drop-shadow-lg">000</span>
                     <span class="text-2xl text-green-400 font-bold ml-1">ms</span>
                 </div>
-                <p id="r-comp" class="text-lg text-gray-300 mt-4 max-w-xl leading-relaxed hidden"></p>
+                <p id="r-comp" class="text-lg text-gray-300 mt-4 max-w-xl leading-relaxed hidden font-light"></p>
                 <p id="r-sub-hint" class="text-gray-500 mt-6 text-sm uppercase tracking-widest invisible">
                     Wait for cooldown...
                 </p>
@@ -128,40 +209,40 @@
     </div>
 
     <!-- GAME 2: ERS MANAGEMENT -->
-    <div id="game-ers" class="game-view bg-gray-900">
-        <h2 class="text-3xl font-bold italic uppercase mb-2 text-green-500">ERS Strategy</h2>
+    <div id="game-ers" class="game-view">
+        <h2 class="text-3xl font-bold italic uppercase mb-2 text-green-400 drop-shadow">ERS Strategy</h2>
         <p class="text-gray-400 mb-8 text-sm">Deploy on Straights. Harvest in Corners.</p>
         
-        <div class="w-full max-w-md bg-black rounded-xl p-8 border border-gray-800 text-center">
-            <div id="ers-monitor" class="h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-800 border-2 border-gray-700 transition-colors duration-200">
+        <div class="w-full max-w-md glass-btn bg-black/30 p-8 text-center">
+            <div id="ers-monitor" class="h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-900/50 border border-gray-700 transition-colors duration-200 backdrop-blur-md">
                 <span id="ers-signal" class="text-2xl md:text-4xl font-black uppercase tracking-widest text-gray-500">WAIT...</span>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <button onclick="handleErsInput('deploy')" class="h-24 bg-red-900/50 border border-red-800 hover:bg-red-600 text-red-200 font-bold rounded-lg uppercase">Deploy</button>
-                <button onclick="handleErsInput('harvest')" class="h-24 bg-green-900/50 border border-green-800 hover:bg-green-600 text-green-200 font-bold rounded-lg uppercase">Harvest</button>
+                <button onclick="handleErsInput('deploy')" class="glass-btn glass-deploy h-24 text-red-100 font-bold text-xl uppercase tracking-wider flex items-center justify-center">Deploy</button>
+                <button onclick="handleErsInput('harvest')" class="glass-btn glass-harvest h-24 text-green-100 font-bold text-xl uppercase tracking-wider flex items-center justify-center">Harvest</button>
             </div>
         </div>
         
         <div class="mt-6 text-center w-full max-w-md">
-            <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg mb-4">
+            <div class="flex justify-between items-center glass-btn p-4 mb-4">
                 <div class="text-left">
-                    <p class="text-xs text-gray-500 uppercase">Score</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Score</p>
                     <p id="ers-score" class="digital-font text-2xl text-white">0</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-xs text-gray-500 uppercase">Total Reaction Time</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Avg Reaction</p>
                     <p id="ers-total-time" class="digital-font text-2xl text-yellow-400">0ms</p>
                 </div>
             </div>
             
-            <button id="ers-start-btn" onclick="startErsGame()" class="mt-2 px-6 py-2 bg-green-700 hover:bg-green-600 rounded text-sm uppercase font-bold">Start Lap</button>
+            <button id="ers-start-btn" onclick="startErsGame()" class="mt-2 action-btn px-8 py-3 text-green-300 border-green-500/30 hover:bg-green-500/20">Start Lap</button>
         </div>
     </div>
 
     <!-- GAME 3: SAFETY CAR DELTA -->
-    <div id="game-safetycar" class="game-view bg-gray-900">
-        <h2 class="text-3xl font-bold italic uppercase mb-2 text-yellow-500">Safety Car Delta</h2>
+    <div id="game-safetycar" class="game-view">
+        <h2 class="text-3xl font-bold italic uppercase mb-2 text-yellow-400 drop-shadow">Safety Car Delta</h2>
         <p class="text-gray-400 mb-8 text-sm">Tap 'BRAKE' to stop the car in the green zone.</p>
         
         <div class="w-full max-w-2xl px-4">
@@ -172,45 +253,45 @@
         </div>
 
         <div class="mt-12 text-center">
-            <button id="sc-action-btn" onclick="scAction()" class="w-64 h-24 bg-gray-700 rounded-xl border-b-8 border-gray-900 active:border-b-0 active:translate-y-2 text-2xl font-black tracking-widest uppercase transition-all">Start</button>
+            <button id="sc-action-btn" onclick="scAction()" class="glass-btn w-64 h-24 text-2xl font-black tracking-widest uppercase text-white hover:text-white transition-all border-white/20">Start</button>
             
             <div id="sc-result-box" class="mt-8 h-20 opacity-0 transition-opacity">
                 <p class="text-gray-400 text-sm uppercase">Distance to Target</p>
-                <p id="sc-score" class="digital-font text-4xl font-bold text-white">0.00m</p>
+                <p id="sc-score" class="digital-font text-4xl font-bold text-white drop-shadow-lg">0.00m</p>
                 <p id="sc-comment" class="text-sm text-yellow-500 mt-1"></p>
             </div>
         </div>
     </div>
 
     <!-- GAME 4: TYRE MANAGER -->
-    <div id="game-tyre" class="game-view bg-gray-900">
-        <h2 class="text-3xl font-bold italic uppercase mb-4 text-orange-500">Tyre Manager</h2>
+    <div id="game-tyre" class="game-view">
+        <h2 class="text-3xl font-bold italic uppercase mb-4 text-orange-400 drop-shadow">Tyre Manager</h2>
         <p class="text-gray-400 mb-8 text-sm max-w-md text-center">Monitor temps. If 3 or more tyres turn <span class="text-red-500 font-bold">RED</span> (>105°C), tap BOX immediately.</p>
         
         <div class="grid grid-cols-2 gap-4 mb-8">
-            <div id="tyre-1" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
-                <span class="text-xs text-gray-500 uppercase">F-Left</span>
+            <div id="tyre-1" class="tyre-box w-32 h-20 rounded-xl flex flex-col items-center justify-center">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">F-Left</span>
                 <span class="digital-font text-2xl font-bold">98°C</span>
             </div>
-            <div id="tyre-2" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
-                <span class="text-xs text-gray-500 uppercase">F-Right</span>
+            <div id="tyre-2" class="tyre-box w-32 h-20 rounded-xl flex flex-col items-center justify-center">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">F-Right</span>
                 <span class="digital-font text-2xl font-bold">99°C</span>
             </div>
-            <div id="tyre-3" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
-                <span class="text-xs text-gray-500 uppercase">R-Left</span>
+            <div id="tyre-3" class="tyre-box w-32 h-20 rounded-xl flex flex-col items-center justify-center">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">R-Left</span>
                 <span class="digital-font text-2xl font-bold">97°C</span>
             </div>
-            <div id="tyre-4" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
-                <span class="text-xs text-gray-500 uppercase">R-Right</span>
+            <div id="tyre-4" class="tyre-box w-32 h-20 rounded-xl flex flex-col items-center justify-center">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">R-Right</span>
                 <span class="digital-font text-2xl font-bold">98°C</span>
             </div>
         </div>
 
-        <button id="tyre-box-btn" onclick="tyreBoxClick()" class="w-full max-w-xs py-4 bg-orange-700 hover:bg-orange-600 rounded text-xl font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed" disabled>BOX BOX BOX</button>
+        <button id="tyre-box-btn" onclick="tyreBoxClick()" class="glass-btn glass-orange w-full max-w-xs py-4 text-xl font-bold uppercase tracking-widest text-orange-100 disabled:opacity-30 disabled:cursor-not-allowed hover:text-white" disabled>BOX BOX BOX</button>
         
         <div class="mt-6 text-center h-16">
-            <button id="tyre-start-btn" onclick="startTyreGame()" class="px-6 py-2 border border-gray-600 rounded hover:bg-gray-800 text-sm uppercase">Start Monitoring</button>
-            <p id="tyre-msg" class="mt-2 text-gray-300"></p>
+            <button id="tyre-start-btn" onclick="startTyreGame()" class="action-btn px-6 py-2 text-sm text-gray-300 border-white/20 hover:bg-white/10">Start Monitoring</button>
+            <p id="tyre-msg" class="mt-2 text-gray-300 font-light"></p>
         </div>
     </div>
 
@@ -294,8 +375,8 @@
             document.getElementById('r-time-box').classList.add('hidden');
             document.getElementById('r-comp').classList.add('hidden');
             document.getElementById('r-sub-hint').classList.add('invisible');
-            rArea.classList.remove('bg-red-900');
-            rArea.classList.add('bg-gray-900');
+            // Remove colored backgrounds, keep the main body background
+            rArea.style.backgroundColor = 'transparent';
             rOnCooldown = false;
         }
 
@@ -322,7 +403,7 @@
             clearTimeout(rTimeout);
             rCurrentState = rState.FINISHED;
             document.getElementById('r-status').innerText = "JUMP START!";
-            document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-red-500";
+            document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-red-500 drop-shadow-md";
             rLights.forEach(l => l.parentElement.classList.add('shake'));
             setTimeout(() => rLights.forEach(l => l.parentElement.classList.remove('shake')), 500);
             startCooldown();
@@ -332,14 +413,12 @@
             rLights.forEach(l => { l.classList.remove('on'); l.classList.add('off'); });
             rCurrentState = rState.WAITING;
             rStartTime = performance.now();
-            rArea.classList.add('bg-gray-800');
             document.getElementById('r-status').innerText = "GO!";
         }
 
         function rFinish() {
             const time = Math.round(performance.now() - rStartTime);
             rCurrentState = rState.FINISHED;
-            rArea.classList.remove('bg-gray-800');
             document.getElementById('r-status').innerText = "";
             document.getElementById('r-ms').innerText = time;
             document.getElementById('r-time-box').classList.remove('hidden');
@@ -374,10 +453,12 @@
         let ersTimeout;
         let ersTotalTime = 0;
         let ersEventStartTime = 0;
+        let ersCount = 0;
 
         function startErsGame() {
             ersScore = 0;
             ersTotalTime = 0;
+            ersCount = 0;
             ersActive = true;
             document.getElementById('ers-score').innerText = "0";
             document.getElementById('ers-total-time').innerText = "0ms";
@@ -387,7 +468,7 @@
 
         function nextErsEvent() {
             if(!ersActive) return;
-            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-800 border-2 border-gray-700";
+            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-900/50 border border-gray-700 backdrop-blur-md";
             document.getElementById('ers-signal').innerText = "Approaching Zone...";
             document.getElementById('ers-signal').className = "text-xl text-gray-500 animate-pulse";
             ersCurrentTarget = null;
@@ -406,13 +487,13 @@
             const sig = document.getElementById('ers-signal');
             
             if (type === 'deploy') {
-                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-red-900/20 border-4 border-red-500";
+                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-red-900/40 border-4 border-red-500 backdrop-blur-md";
                 sig.innerText = "STRAIGHT! DEPLOY!";
-                sig.className = "text-4xl font-black text-red-500 uppercase";
+                sig.className = "text-4xl font-black text-red-500 uppercase drop-shadow-md";
             } else {
-                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-green-900/20 border-4 border-green-500";
+                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-green-900/40 border-4 border-green-500 backdrop-blur-md";
                 sig.innerText = "CORNER! HARVEST!";
-                sig.className = "text-4xl font-black text-green-500 uppercase";
+                sig.className = "text-4xl font-black text-green-500 uppercase drop-shadow-md";
             }
 
             // Auto fail if too slow (2.0s)
@@ -432,9 +513,12 @@
             if (type === ersCurrentTarget) {
                 ersScore += 10;
                 ersTotalTime += reaction;
+                ersCount++;
                 
                 document.getElementById('ers-score').innerText = ersScore;
-                document.getElementById('ers-total-time').innerText = ersTotalTime + "ms";
+                // Calculate average reaction
+                const avg = Math.round(ersTotalTime / ersCount);
+                document.getElementById('ers-total-time').innerText = avg + "ms";
                 
                 if (ersScore >= 50) {
                     endErsGame("Lap Complete! Gold Medal.");
@@ -450,7 +534,7 @@
             ersActive = false;
             document.getElementById('ers-signal').innerText = msg;
             document.getElementById('ers-signal').className = "text-2xl text-white font-bold";
-            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-700 border-2 border-gray-600";
+            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-800/50 border-2 border-gray-600";
             document.getElementById('ers-start-btn').classList.remove('hidden');
             document.getElementById('ers-start-btn').innerText = "Retry";
         }
@@ -471,8 +555,8 @@
                 // Start
                 scRunning = true;
                 btn.innerText = "BRAKE";
-                btn.classList.add('bg-red-600', 'border-red-800');
-                btn.classList.remove('bg-gray-700');
+                btn.classList.add('glass-red'); 
+                btn.classList.add('border-red-500');
                 document.getElementById('sc-result-box').style.opacity = '0';
                 
                 scPos = 0;
@@ -484,8 +568,8 @@
                 scRunning = false;
                 cancelAnimationFrame(scAnimId);
                 btn.innerText = "START";
-                btn.classList.remove('bg-red-600', 'border-red-800');
-                btn.classList.add('bg-gray-700');
+                btn.classList.remove('glass-red');
+                btn.classList.remove('border-red-500');
                 
                 calculateScScore();
             }
@@ -522,13 +606,13 @@
             scoreEl.innerText = meters + "m";
             
             if (meters < 0.2) {
-                scoreEl.className = "digital-font text-4xl font-bold text-green-500";
+                scoreEl.className = "digital-font text-4xl font-bold text-green-400 drop-shadow";
                 commentEl.innerText = "Perfect Delta Management";
             } else if (meters < 1.0) {
-                scoreEl.className = "digital-font text-4xl font-bold text-yellow-500";
+                scoreEl.className = "digital-font text-4xl font-bold text-yellow-400 drop-shadow";
                 commentEl.innerText = "Acceptable";
             } else {
-                scoreEl.className = "digital-font text-4xl font-bold text-red-500";
+                scoreEl.className = "digital-font text-4xl font-bold text-red-500 drop-shadow";
                 commentEl.innerText = "Penalty: Speeding/Too Slow";
             }
         }
@@ -546,8 +630,8 @@
             tyreBoxOpen = false;
             document.getElementById('tyre-start-btn').classList.add('hidden');
             document.getElementById('tyre-box-btn').disabled = false;
-            document.getElementById('tyre-box-btn').classList.remove('opacity-50', 'cursor-not-allowed', 'bg-green-600');
-            document.getElementById('tyre-box-btn').classList.add('bg-orange-700');
+            document.getElementById('tyre-box-btn').classList.remove('opacity-30', 'cursor-not-allowed');
+            document.getElementById('tyre-box-btn').classList.add('glass-orange');
             document.getElementById('tyre-box-btn').innerText = "BOX BOX BOX";
             document.getElementById('tyre-msg').innerText = "Monitoring temps...";
             
@@ -606,9 +690,10 @@
                 // Success
                 const reaction = (performance.now() - tyreStartTime).toFixed(0);
                 document.getElementById('tyre-msg').innerText = `Box confirmed in ${reaction}ms`;
-                document.getElementById('tyre-msg').className = "mt-2 text-green-500 font-bold";
+                document.getElementById('tyre-msg').className = "mt-2 text-green-400 font-bold drop-shadow";
                 document.getElementById('tyre-box-btn').innerText = "CONFIRMED";
-                document.getElementById('tyre-box-btn').classList.add('bg-green-600');
+                document.getElementById('tyre-box-btn').classList.remove('glass-orange');
+                document.getElementById('tyre-box-btn').classList.add('glass-green');
                 tyreActive = false;
             } else {
                 // Penalty
@@ -621,6 +706,8 @@
             document.getElementById('tyre-start-btn').classList.remove('hidden');
             document.getElementById('tyre-start-btn').innerText = "Try Again";
             document.getElementById('tyre-box-btn').disabled = true;
+            document.getElementById('tyre-box-btn').classList.add('opacity-30', 'cursor-not-allowed');
+            document.getElementById('tyre-box-btn').classList.remove('glass-green');
         }
 
     </script>
