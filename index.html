@@ -3,300 +3,592 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 Reaction Test</title>
+    <title>F1 Training Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
-            user-select: none; /* Prevents text selection during rapid clicking */
+            touch-action: manipulation;
+            user-select: none;
+            background-color: #111827; /* gray-900 */
         }
-        .digital-font {
-            font-family: 'Roboto Mono', monospace;
-        }
-        .light {
-            transition: background-color 0.1s;
-            box-shadow: 0 0 0 2px #1f2937; /* border-gray-800 */
-        }
-        .light.on {
-            background-color: #ef4444; /* red-500 */
-            box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6);
-            border-color: #ef4444;
-        }
-        .light.off {
-            background-color: #374151; /* gray-700 */
-        }
-        /* Shake animation for false start */
+        .digital-font { font-family: 'Roboto Mono', monospace; }
+        
+        /* Common Game Styles */
+        .game-view { display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
+        .game-view.active { display: flex; }
+        
+        /* F1 Lights (Game 1) */
+        .light { transition: background-color 0.1s; box-shadow: 0 0 0 2px #1f2937; }
+        .light.on { background-color: #ef4444; box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6); border-color: #ef4444; }
+        .light.off { background-color: #374151; }
+        
+        /* Animations */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
-        .shake {
-            animation: shake 0.2s ease-in-out 0s 2;
-        }
+        .shake { animation: shake 0.2s ease-in-out 0s 2; }
+        
+        /* Safety Car (Game 3) */
+        #sc-track { position: relative; width: 100%; height: 60px; background: #374151; overflow: hidden; border-radius: 8px; }
+        #sc-target { position: absolute; left: 50%; top: 0; bottom: 0; width: 60px; background: rgba(16, 185, 129, 0.2); border: 2px solid #10b981; transform: translateX(-50%); z-index: 1; }
+        #sc-car { position: absolute; top: 10px; width: 40px; height: 40px; background: #fbbf24; border-radius: 4px; box-shadow: 0 0 10px #fbbf24; z-index: 2; transition: transform 0.1s; }
+
+        /* Tyre (Game 4) */
+        .tyre-box { transition: color 0.2s; }
+        .tyre-hot { color: #ef4444; border-color: #ef4444; }
+        .tyre-cold { color: #3b82f6; border-color: #3b82f6; }
+        .tyre-ok { color: #10b981; border-color: #374151; }
+
+        /* Scrollbar hide */
+        ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-900 text-white h-screen flex flex-col items-center justify-center overflow-hidden cursor-pointer" id="gameArea">
+<body class="text-white h-screen overflow-hidden">
 
-    <!-- Header / Title -->
-    <div class="absolute top-8 text-center px-4">
-        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-100 uppercase italic">
-            Lights Out
+    <!-- MAIN MENU -->
+    <div id="menu-view" class="h-full flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500 mb-2 italic uppercase">
+            F1 Training Hub
         </h1>
-        <p class="text-gray-400 mt-2 text-sm md:text-base">Tap anywhere to start. Tap again when lights go out.</p>
-    </div>
-
-    <!-- Main Game Container -->
-    <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4">
+        <p class="text-gray-400 mb-8 text-center max-w-md">Test your reflexes, precision, and strategy with these driver simulation drills.</p>
         
-        <!-- F1 Light Gantry -->
-        <div class="bg-black p-4 md:p-8 rounded-2xl shadow-2xl border-b-4 border-gray-800 w-full max-w-2xl mx-auto mb-12 relative">
-            <!-- Gantry Housing -->
-            <div class="flex justify-between items-center gap-2 md:gap-4">
-                <!-- 5 Lights -->
-                <div id="light-1" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                <div id="light-2" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                <div id="light-3" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                <div id="light-4" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-                <div id="light-5" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
-            </div>
-            <!-- Gantry Structure Visuals (Lines) -->
-            <div class="absolute -top-4 left-10 right-10 h-4 border-t-2 border-l-2 border-r-2 border-gray-600 rounded-t-lg opacity-50"></div>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-4xl">
+            <!-- Card 1: Lights Out -->
+            <button onclick="switchView('game-reaction')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-red-500 transition-all hover:shadow-red-900/20 hover:shadow-xl text-left">
+                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-red-400">Lights Out</h3>
+                <p class="text-sm text-gray-400">Classic F1 start reaction test. Wait for the lights to go dark.</p>
+            </button>
 
-        <!-- Status / Result Display -->
-        <div id="messageContainer" class="text-center h-48 flex flex-col items-center justify-center transition-opacity duration-200">
-            
-            <!-- Main State Text -->
-            <h2 id="statusText" class="text-4xl md:text-6xl font-bold mb-4 text-gray-100">
-                Click to Start
-            </h2>
-            
-            <!-- Result Time -->
-            <div id="timeDisplay" class="hidden">
-                <span id="msText" class="digital-font text-6xl md:text-8xl font-bold text-green-400 tracking-tighter">000</span>
-                <span class="text-2xl text-green-400 font-bold ml-1">ms</span>
-            </div>
+            <!-- Card 2: ERS -->
+            <button onclick="switchView('game-ers')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-green-500 transition-all hover:shadow-green-900/20 hover:shadow-xl text-left">
+                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-green-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-green-400">ERS Management</h3>
+                <p class="text-sm text-gray-400">Deploy or Harvest? React to track conditions instantly.</p>
+            </button>
 
-            <!-- Comparison / Description -->
-            <p id="comparisonText" class="text-lg md:text-xl text-gray-300 mt-4 max-w-xl leading-relaxed hidden">
-                <!-- Comparison text goes here -->
-            </p>
+            <!-- Card 3: Safety Car -->
+            <button onclick="switchView('game-safetycar')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-yellow-500 transition-all hover:shadow-yellow-900/20 hover:shadow-xl text-left">
+                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-yellow-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
+                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-yellow-400">Safety Car Delta</h3>
+                <p class="text-sm text-gray-400">Stop exactly on the delta line. Precision timing required.</p>
+            </button>
 
-            <!-- Play Again Hint -->
-            <p id="subHint" class="text-gray-500 mt-8 text-sm uppercase tracking-widest animate-pulse hidden">
-                Click to try again
-            </p>
+            <!-- Card 4: Tyre Temp -->
+            <button onclick="switchView('game-tyre')" class="group relative bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-orange-500 transition-all hover:shadow-orange-900/20 hover:shadow-xl text-left">
+                <div class="absolute top-4 right-4 text-gray-600 group-hover:text-orange-500"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                <h3 class="text-xl font-bold text-white mb-1 group-hover:text-orange-400">Tyre Whisperer</h3>
+                <p class="text-sm text-gray-400">Monitor temps. Box immediately when 3+ tyres overheat.</p>
+            </button>
         </div>
     </div>
 
-    <!-- History / Best Score (Bottom Right) -->
-    <div class="absolute bottom-6 right-6 text-right hidden md:block">
-        <p class="text-gray-500 text-xs uppercase tracking-widest mb-1">Best Time</p>
-        <p id="bestScore" class="digital-font text-2xl text-gray-300">-- ms</p>
+    <!-- GLOBAL BACK BUTTON -->
+    <button id="backBtn" onclick="goToMenu()" class="hidden absolute top-4 left-4 z-50 flex items-center gap-2 text-gray-400 hover:text-white uppercase text-xs font-bold tracking-widest bg-gray-800/50 px-3 py-1 rounded-full border border-gray-700">
+        <span>&larr; Menu</span>
+    </button>
+
+    <!-- GAME 1: REACTION TEST (Original) -->
+    <div id="game-reaction" class="game-view bg-gray-900 cursor-pointer">
+        <div class="absolute top-8 text-center px-4 w-full">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-gray-100 uppercase italic">Lights Out</h1>
+        </div>
+        <div class="flex flex-col items-center justify-center w-full max-w-4xl px-4 mt-12">
+            <div class="bg-black p-4 md:p-8 rounded-2xl shadow-2xl border-b-4 border-gray-800 w-full max-w-2xl mx-auto mb-12 relative">
+                <div class="flex justify-between items-center gap-2 md:gap-4">
+                    <div id="light-1" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                    <div id="light-2" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                    <div id="light-3" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                    <div id="light-4" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                    <div id="light-5" class="light off w-12 h-12 md:w-20 md:h-20 rounded-full bg-gray-700"></div>
+                </div>
+                <div class="absolute -top-4 left-10 right-10 h-4 border-t-2 border-l-2 border-r-2 border-gray-600 rounded-t-lg opacity-50"></div>
+            </div>
+            <div id="r-msg" class="text-center h-48 flex flex-col items-center justify-center">
+                <h2 id="r-status" class="text-4xl md:text-6xl font-bold mb-4 text-gray-100">Click to Start</h2>
+                <div id="r-time-box" class="hidden">
+                    <span id="r-ms" class="digital-font text-6xl md:text-8xl font-bold text-green-400 tracking-tighter">000</span>
+                    <span class="text-2xl text-green-400 font-bold ml-1">ms</span>
+                </div>
+                <p id="r-comp" class="text-lg text-gray-300 mt-4 max-w-xl leading-relaxed hidden"></p>
+            </div>
+        </div>
     </div>
 
+    <!-- GAME 2: ERS MANAGEMENT -->
+    <div id="game-ers" class="game-view bg-gray-900">
+        <h2 class="text-3xl font-bold italic uppercase mb-2 text-green-500">ERS Strategy</h2>
+        <p class="text-gray-400 mb-8 text-sm">Deploy on Straights. Harvest in Corners.</p>
+        
+        <div class="w-full max-w-md bg-black rounded-xl p-8 border border-gray-800 text-center">
+            <div id="ers-monitor" class="h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-800 border-2 border-gray-700 transition-colors duration-200">
+                <span id="ers-signal" class="text-2xl md:text-4xl font-black uppercase tracking-widest text-gray-500">WAIT...</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="handleErsInput('deploy')" class="h-24 bg-red-900/50 border border-red-800 hover:bg-red-600 text-red-200 font-bold rounded-lg uppercase">Deploy</button>
+                <button onclick="handleErsInput('harvest')" class="h-24 bg-green-900/50 border border-green-800 hover:bg-green-600 text-green-200 font-bold rounded-lg uppercase">Harvest</button>
+            </div>
+        </div>
+        
+        <div class="mt-6 text-center w-full max-w-md">
+            <div class="flex justify-between items-center bg-gray-800 p-4 rounded-lg mb-4">
+                <div class="text-left">
+                    <p class="text-xs text-gray-500 uppercase">Score</p>
+                    <p id="ers-score" class="digital-font text-2xl text-white">0</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500 uppercase">Total Reaction Time</p>
+                    <p id="ers-total-time" class="digital-font text-2xl text-yellow-400">0ms</p>
+                </div>
+            </div>
+            
+            <button id="ers-start-btn" onclick="startErsGame()" class="mt-2 px-6 py-2 bg-green-700 hover:bg-green-600 rounded text-sm uppercase font-bold">Start Lap</button>
+        </div>
+    </div>
+
+    <!-- GAME 3: SAFETY CAR DELTA -->
+    <div id="game-safetycar" class="game-view bg-gray-900">
+        <h2 class="text-3xl font-bold italic uppercase mb-2 text-yellow-500">Safety Car Delta</h2>
+        <p class="text-gray-400 mb-8 text-sm">Tap 'BRAKE' to stop the car in the green zone.</p>
+        
+        <div class="w-full max-w-2xl px-4">
+            <div id="sc-track">
+                <div id="sc-target"></div>
+                <div id="sc-car" style="left: 0%;"></div>
+            </div>
+        </div>
+
+        <div class="mt-12 text-center">
+            <button id="sc-action-btn" onclick="scAction()" class="w-64 h-24 bg-gray-700 rounded-xl border-b-8 border-gray-900 active:border-b-0 active:translate-y-2 text-2xl font-black tracking-widest uppercase transition-all">Start</button>
+            
+            <div id="sc-result-box" class="mt-8 h-20 opacity-0 transition-opacity">
+                <p class="text-gray-400 text-sm uppercase">Delta Deviation</p>
+                <p id="sc-score" class="digital-font text-4xl font-bold text-white">0px</p>
+                <p id="sc-comment" class="text-sm text-yellow-500 mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME 4: TYRE MANAGER -->
+    <div id="game-tyre" class="game-view bg-gray-900">
+        <h2 class="text-3xl font-bold italic uppercase mb-4 text-orange-500">Tyre Manager</h2>
+        <p class="text-gray-400 mb-8 text-sm max-w-md text-center">Monitor temps. If 3 or more tyres turn <span class="text-red-500 font-bold">RED</span> (>105°C), tap BOX immediately.</p>
+        
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div id="tyre-1" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
+                <span class="text-xs text-gray-500 uppercase">F-Left</span>
+                <span class="digital-font text-2xl font-bold">98°C</span>
+            </div>
+            <div id="tyre-2" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
+                <span class="text-xs text-gray-500 uppercase">F-Right</span>
+                <span class="digital-font text-2xl font-bold">99°C</span>
+            </div>
+            <div id="tyre-3" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
+                <span class="text-xs text-gray-500 uppercase">R-Left</span>
+                <span class="digital-font text-2xl font-bold">97°C</span>
+            </div>
+            <div id="tyre-4" class="tyre-box w-32 h-20 bg-gray-800 rounded-lg border-l-4 border-gray-600 flex flex-col items-center justify-center">
+                <span class="text-xs text-gray-500 uppercase">R-Right</span>
+                <span class="digital-font text-2xl font-bold">98°C</span>
+            </div>
+        </div>
+
+        <button id="tyre-box-btn" onclick="tyreBoxClick()" class="w-full max-w-xs py-4 bg-orange-700 hover:bg-orange-600 rounded text-xl font-bold uppercase disabled:opacity-50 disabled:cursor-not-allowed" disabled>BOX BOX BOX</button>
+        
+        <div class="mt-6 text-center h-16">
+            <button id="tyre-start-btn" onclick="startTyreGame()" class="px-6 py-2 border border-gray-600 rounded hover:bg-gray-800 text-sm uppercase">Start Monitoring</button>
+            <p id="tyre-msg" class="mt-2 text-gray-300"></p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- Game State ---
-        const STATE = {
-            IDLE: 'idle',           // Waiting for user to start
-            COUNTDOWN: 'countdown', // Lights turning on red
-            READY: 'ready',         // All red, waiting for random delay
-            WAITING: 'waiting',     // Lights out, waiting for click (This is the reaction phase)
-            FINISHED: 'finished',   // Result shown
-            FALSE_START: 'false'    // Clicked too early
-        };
+        // --- Navigation System ---
+        function switchView(viewId) {
+            // Hide all views
+            document.querySelectorAll('.game-view, #menu-view').forEach(el => {
+                el.classList.remove('active');
+                if(el.id !== 'menu-view') el.style.display = 'none';
+                else el.classList.add('hidden'); // Tailwind hidden for menu
+            });
+            
+            // Cleanup running games
+            cleanupGames();
 
-        let currentState = STATE.IDLE;
-        let startTime = 0;
-        let timeoutIds = []; // To clear timers on reset
-        let bestTime = Infinity;
-
-        // --- DOM Elements ---
-        const lights = [
-            document.getElementById('light-1'),
-            document.getElementById('light-2'),
-            document.getElementById('light-3'),
-            document.getElementById('light-4'),
-            document.getElementById('light-5')
-        ];
-        const statusText = document.getElementById('statusText');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const msText = document.getElementById('msText');
-        const comparisonText = document.getElementById('comparisonText');
-        const subHint = document.getElementById('subHint');
-        const gameArea = document.getElementById('gameArea');
-        const bestScoreEl = document.getElementById('bestScore');
-
-        // --- Event Listeners ---
-        // We use 'pointerdown' for faster response than 'click' on touch devices
-        gameArea.addEventListener('pointerdown', handleInput);
-        
-        // Prevent default spacebar scrolling and use it for play
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                handleInput();
+            // Show selected
+            if (viewId === 'menu-view') {
+                document.getElementById('menu-view').classList.remove('hidden');
+                document.getElementById('backBtn').classList.add('hidden');
+            } else {
+                const el = document.getElementById(viewId);
+                el.classList.add('active');
+                el.style.display = 'flex';
+                document.getElementById('backBtn').classList.remove('hidden');
+                
+                // Initialize specific game state if needed
+                if(viewId === 'game-reaction') resetReactionGame();
             }
+        }
+
+        function goToMenu() {
+            switchView('menu-view');
+        }
+
+        function cleanupGames() {
+            // Stop Reaction
+            clearTimeout(rTimeout);
+            // Stop ERS
+            clearTimeout(ersTimeout);
+            // Stop SC
+            cancelAnimationFrame(scAnimId);
+            // Stop Tyre
+            clearInterval(tyreInterval);
+        }
+
+        // ==========================================
+        // GAME 1: REACTION TEST (Ported Logic)
+        // ==========================================
+        const rState = { IDLE: 'idle', COUNTDOWN: 'cnt', WAITING: 'wait', FINISHED: 'fin' };
+        let rCurrentState = rState.IDLE;
+        let rStartTime = 0;
+        let rTimeout;
+        
+        const rLights = [1,2,3,4,5].map(i => document.getElementById(`light-${i}`));
+        const rArea = document.getElementById('game-reaction');
+
+        rArea.addEventListener('pointerdown', (e) => {
+            if(rArea.style.display === 'none') return;
+            // Prevent triggering if clicking back button (though z-index handles it, safe to check)
+            if(e.target.closest('#backBtn')) return;
+            handleRInput();
         });
 
-        function handleInput() {
-            switch (currentState) {
-                case STATE.IDLE:
-                case STATE.FINISHED:
-                case STATE.FALSE_START:
-                    startSequence();
-                    break;
-                case STATE.COUNTDOWN:
-                case STATE.READY:
-                    triggerFalseStart();
-                    break;
-                case STATE.WAITING:
-                    finishGame();
-                    break;
-            }
+        function handleRInput() {
+            if (rCurrentState === rState.IDLE || rCurrentState === rState.FINISHED) rStart();
+            else if (rCurrentState === rState.COUNTDOWN) rFalseStart();
+            else if (rCurrentState === rState.WAITING) rFinish();
         }
 
-        // --- Core Logic ---
+        function resetReactionGame() {
+            rCurrentState = rState.IDLE;
+            rLights.forEach(l => { l.classList.remove('on'); l.classList.add('off'); });
+            document.getElementById('r-status').innerText = "Click to Start";
+            document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-gray-100";
+            document.getElementById('r-time-box').classList.add('hidden');
+            document.getElementById('r-comp').classList.add('hidden');
+            rArea.classList.remove('bg-red-900');
+            rArea.classList.add('bg-gray-900');
+        }
 
-        function resetGame() {
-            // Clear any pending timers
-            timeoutIds.forEach(id => clearTimeout(id));
-            timeoutIds = [];
+        function rStart() {
+            resetReactionGame();
+            rCurrentState = rState.COUNTDOWN;
+            document.getElementById('r-status').innerText = "Wait...";
             
-            // Reset Lights
-            lights.forEach(l => {
-                l.classList.remove('on');
-                l.classList.add('off');
-            });
-
-            // Reset UI
-            gameArea.classList.remove('bg-red-900', 'bg-green-900'); // Remove status bg colors
-            gameArea.classList.add('bg-gray-900');
-            timeDisplay.classList.add('hidden');
-            comparisonText.classList.add('hidden');
-            subHint.classList.add('hidden');
-        }
-
-        function startSequence() {
-            resetGame();
-            currentState = STATE.COUNTDOWN;
-            statusText.innerText = "Wait for it...";
-            statusText.className = "text-4xl md:text-6xl font-bold mb-4 text-gray-100";
-
-            // Light up sequence: 1 second interval between lights
             let delay = 1000;
-            lights.forEach((light, index) => {
-                const id = setTimeout(() => {
+            rLights.forEach((light, idx) => {
+                rTimeout = setTimeout(() => {
                     light.classList.remove('off');
                     light.classList.add('on');
-                    
-                    // If this is the last light, move to READY state
-                    if (index === 4) {
-                        currentState = STATE.READY;
-                        startRandomWait();
+                    if(idx === 4) {
+                        const randomWait = Math.random() * 2000 + 1000; // 1-3s
+                        rTimeout = setTimeout(rGo, randomWait);
                     }
                 }, delay);
-                timeoutIds.push(id);
                 delay += 1000;
             });
         }
 
-        function startRandomWait() {
-            // F1 lights hold between 0.2s and 3.0s after all 5 are on
-            const randomDelay = Math.floor(Math.random() * 2800) + 200; 
-            
-            const id = setTimeout(() => {
-                lightsOut();
-            }, randomDelay);
-            timeoutIds.push(id);
+        function rFalseStart() {
+            clearTimeout(rTimeout);
+            rCurrentState = rState.FINISHED;
+            document.getElementById('r-status').innerText = "JUMP START!";
+            document.getElementById('r-status').className = "text-4xl md:text-6xl font-bold mb-4 text-red-500";
+            rLights.forEach(l => l.parentElement.classList.add('shake'));
+            setTimeout(() => rLights.forEach(l => l.parentElement.classList.remove('shake')), 500);
         }
 
-        function lightsOut() {
-            // Turn all lights off
-            lights.forEach(l => {
-                l.classList.remove('on');
-                l.classList.add('off');
-            });
-
-            currentState = STATE.WAITING;
-            startTime = performance.now(); // High precision timer
-            
-            // Visual change for the background (subtle flash)
-            gameArea.classList.remove('bg-gray-900');
-            gameArea.classList.add('bg-gray-800');
-            statusText.innerText = "GO!";
+        function rGo() {
+            rLights.forEach(l => { l.classList.remove('on'); l.classList.add('off'); });
+            rCurrentState = rState.WAITING;
+            rStartTime = performance.now();
+            rArea.classList.add('bg-gray-800');
+            document.getElementById('r-status').innerText = "GO!";
         }
 
-        function finishGame() {
-            const endTime = performance.now();
-            const reactionTime = Math.round(endTime - startTime);
-            currentState = STATE.FINISHED;
-
-            // Update Best Score
-            if (reactionTime < bestTime) {
-                bestTime = reactionTime;
-                bestScoreEl.innerText = `${bestTime} ms`;
-            }
-
-            // Show Result
-            statusText.innerText = "";
-            msText.innerText = reactionTime;
-            timeDisplay.classList.remove('hidden');
+        function rFinish() {
+            const time = Math.round(performance.now() - rStartTime);
+            rCurrentState = rState.FINISHED;
+            rArea.classList.remove('bg-gray-800');
+            document.getElementById('r-status').innerText = "";
+            document.getElementById('r-ms').innerText = time;
+            document.getElementById('r-time-box').classList.remove('hidden');
             
-            // Get comparison text
-            const comparison = getComparison(reactionTime);
-            comparisonText.innerHTML = comparison;
-            comparisonText.classList.remove('hidden');
-            
-            subHint.classList.remove('hidden');
-            gameArea.classList.add('bg-gray-900'); // Revert bg
+            // Simple comparison text
+            const comp = document.getElementById('r-comp');
+            comp.innerHTML = time < 200 ? "F1 Driver Level!" : time < 270 ? "Average Human" : "Slow Start";
+            comp.classList.remove('hidden');
         }
 
-        function triggerFalseStart() {
-            resetGame(); // Stop the timers
-            currentState = STATE.FALSE_START;
-            
-            // Visuals
-            statusText.innerText = "JUMP START!";
-            statusText.className = "text-4xl md:text-6xl font-bold mb-4 text-red-500";
-            comparisonText.innerText = "You went before the lights went out! Too eager.";
-            comparisonText.classList.remove('hidden');
-            subHint.classList.remove('hidden');
-            
-            // Shake effect
-            lights.forEach(l => l.parentElement.classList.add('shake'));
-            setTimeout(() => {
-                lights.forEach(l => l.parentElement.classList.remove('shake'));
-            }, 500);
+        // ==========================================
+        // GAME 2: ERS STRATEGY
+        // ==========================================
+        let ersScore = 0;
+        let ersActive = false;
+        let ersCurrentTarget = null; // 'deploy' or 'harvest'
+        let ersTimeout;
+        let ersTotalTime = 0;
+        let ersEventStartTime = 0;
+
+        function startErsGame() {
+            ersScore = 0;
+            ersTotalTime = 0;
+            ersActive = true;
+            document.getElementById('ers-score').innerText = "0";
+            document.getElementById('ers-total-time').innerText = "0ms";
+            document.getElementById('ers-start-btn').classList.add('hidden');
+            nextErsEvent();
         }
 
-        // --- Comparison Data ---
-        function getComparison(ms) {
-            if (ms < 100) {
-                return `<span class="text-yellow-400 font-bold">Pure Luck or Prediction!</span><br> This is faster than humanly possible for a visual reaction. In athletics, anything under 100ms is considered a false start.`;
-            } else if (ms < 160) {
-                return `<span class="text-purple-400 font-bold">F1 Legend Status</span><br> You are reacting as fast as an elite F1 driver (like Bottas or Verstappen) or an Olympic sprinter leaving the blocks.`;
-            } else if (ms < 200) {
-                return `<span class="text-blue-400 font-bold">Pro Gamer Speed</span><br> This is extremely fast—common among professional Esports players and competitive drivers.`;
-            } else if (ms < 230) {
-                return `<span class="text-green-400 font-bold">Very Sharp</span><br> Faster than the average young adult. Comparable to a rattlesnake strike (~200ms).`;
-            } else if (ms < 270) {
-                return `<span class="text-gray-300 font-bold">Average Human</span><br> This is the standard visual reaction time for most people.`;
-            } else if (ms < 350) {
-                return `<span class="text-gray-400 font-bold">Blink of an Eye</span><br> Your reaction was roughly the same duration as a human eye blink (100-400ms).`;
-            } else if (ms < 450) {
-                return `<span class="text-orange-400 font-bold">Baseball Pitch</span><br> In this time, a 90mph fastball has traveled from the pitcher's mound to home plate.`;
-            } else if (ms < 600) {
-                return `<span class="text-orange-500 font-bold">Pain Perception</span><br> It takes about this long for your brain to consciously register touching a hot stove.`;
-            } else if (ms < 1000) {
-                return `<span class="text-red-400 font-bold">Human Heartbeat</span><br> Your reaction took about as long as one beat of a resting human heart.`;
+        function nextErsEvent() {
+            if(!ersActive) return;
+            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-800 border-2 border-gray-700";
+            document.getElementById('ers-signal').innerText = "Approaching Zone...";
+            document.getElementById('ers-signal').className = "text-xl text-gray-500 animate-pulse";
+            ersCurrentTarget = null;
+
+            const wait = Math.random() * 2000 + 1000;
+            ersTimeout = setTimeout(() => {
+                const type = Math.random() > 0.5 ? 'deploy' : 'harvest';
+                triggerErsEvent(type);
+            }, wait);
+        }
+
+        function triggerErsEvent(type) {
+            ersCurrentTarget = type;
+            ersEventStartTime = performance.now();
+            const mon = document.getElementById('ers-monitor');
+            const sig = document.getElementById('ers-signal');
+            
+            if (type === 'deploy') {
+                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-red-900/20 border-4 border-red-500";
+                sig.innerText = "STRAIGHT! DEPLOY!";
+                sig.className = "text-4xl font-black text-red-500 uppercase";
             } else {
-                return `<span class="text-red-500 font-bold">A Deep Breath</span><br> Did you fall asleep at the wheel? That was over a second!`;
+                mon.className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-green-900/20 border-4 border-green-500";
+                sig.innerText = "CORNER! HARVEST!";
+                sig.className = "text-4xl font-black text-green-500 uppercase";
+            }
+
+            // Auto fail if too slow (2.0s)
+            ersTimeout = setTimeout(() => {
+                if(ersCurrentTarget) {
+                    endErsGame("Too Slow!");
+                }
+            }, 2000);
+        }
+
+        function handleErsInput(type) {
+            if (!ersActive || !ersCurrentTarget) return;
+            
+            clearTimeout(ersTimeout); // clear fail timer
+            const reaction = Math.round(performance.now() - ersEventStartTime);
+
+            if (type === ersCurrentTarget) {
+                ersScore += 10;
+                ersTotalTime += reaction;
+                
+                document.getElementById('ers-score').innerText = ersScore;
+                document.getElementById('ers-total-time').innerText = ersTotalTime + "ms";
+                
+                if (ersScore >= 50) {
+                    endErsGame("Lap Complete! Gold Medal.");
+                } else {
+                    nextErsEvent();
+                }
+            } else {
+                endErsGame("Wrong Mode! Engine Fail.");
             }
         }
+
+        function endErsGame(msg) {
+            ersActive = false;
+            document.getElementById('ers-signal').innerText = msg;
+            document.getElementById('ers-signal').className = "text-2xl text-white font-bold";
+            document.getElementById('ers-monitor').className = "h-32 flex items-center justify-center mb-6 rounded-lg bg-gray-700 border-2 border-gray-600";
+            document.getElementById('ers-start-btn').classList.remove('hidden');
+            document.getElementById('ers-start-btn').innerText = "Retry";
+        }
+
+        // ==========================================
+        // GAME 3: SAFETY CAR DELTA
+        // ==========================================
+        let scAnimId;
+        let scRunning = false;
+        let scSpeed = 1;
+        let scPos = 0;
+        const scCar = document.getElementById('sc-car');
+        const scTrackWidth = document.getElementById('sc-track').offsetWidth || 300; // Fallback
+
+        function scAction() {
+            const btn = document.getElementById('sc-action-btn');
+            if (!scRunning) {
+                // Start
+                scRunning = true;
+                btn.innerText = "BRAKE";
+                btn.classList.add('bg-red-600', 'border-red-800');
+                btn.classList.remove('bg-gray-700');
+                document.getElementById('sc-result-box').style.opacity = '0';
+                
+                scPos = 0;
+                // Much slower speed: 0.5 to 1.5 per frame
+                scSpeed = 0.5 + Math.random(); 
+                scLoop();
+            } else {
+                // Stop
+                scRunning = false;
+                cancelAnimationFrame(scAnimId);
+                btn.innerText = "START";
+                btn.classList.remove('bg-red-600', 'border-red-800');
+                btn.classList.add('bg-gray-700');
+                
+                calculateScScore();
+            }
+        }
+
+        function scLoop() {
+            scPos += scSpeed;
+            // Loop functionality
+            if (scPos > 100) scPos = -10;
+            
+            scCar.style.left = scPos + '%';
+            
+            if(scRunning) {
+                scAnimId = requestAnimationFrame(scLoop);
+            }
+        }
+
+        function calculateScScore() {
+            // Target is center (50%). Car width is approx 5-10%.
+            // Center of car vs Center of track
+            // scPos is left %. 
+            // Car center ~ scPos + 3% (width is 40px, track ~600px)
+            const center = scPos + 3; 
+            const diff = Math.abs(50 - center).toFixed(1);
+            
+            const scoreEl = document.getElementById('sc-score');
+            const commentEl = document.getElementById('sc-comment');
+            document.getElementById('sc-result-box').style.opacity = '1';
+            
+            scoreEl.innerText = diff + "%";
+            
+            if (diff < 2) {
+                scoreEl.className = "digital-font text-4xl font-bold text-green-500";
+                commentEl.innerText = "Perfect Delta Management";
+            } else if (diff < 10) {
+                scoreEl.className = "digital-font text-4xl font-bold text-yellow-500";
+                commentEl.innerText = "Acceptable";
+            } else {
+                scoreEl.className = "digital-font text-4xl font-bold text-red-500";
+                commentEl.innerText = "Penalty: Speeding/Too Slow";
+            }
+        }
+
+        // ==========================================
+        // GAME 4: TYRE MANAGER
+        // ==========================================
+        let tyreInterval;
+        let tyreActive = false;
+        let tyreBoxOpen = false;
+        let tyreStartTime = 0;
+
+        function startTyreGame() {
+            tyreActive = true;
+            tyreBoxOpen = false;
+            document.getElementById('tyre-start-btn').classList.add('hidden');
+            document.getElementById('tyre-box-btn').disabled = false;
+            document.getElementById('tyre-box-btn').classList.remove('opacity-50', 'cursor-not-allowed', 'bg-green-600');
+            document.getElementById('tyre-box-btn').classList.add('bg-orange-700');
+            document.getElementById('tyre-box-btn').innerText = "BOX BOX BOX";
+            document.getElementById('tyre-msg').innerText = "Monitoring temps...";
+            
+            // Randomly trigger overheating
+            const failTime = Math.random() * 3000 + 1000;
+            
+            const temps = [90, 90, 90, 90];
+            
+            tyreInterval = setInterval(() => {
+                // Update visuals
+                for(let i=0; i<4; i++) {
+                    // Small fluctuation
+                    temps[i] += Math.floor(Math.random() * 3) - 1;
+                    if(temps[i] < 80) temps[i] = 80;
+                    
+                    const el = document.getElementById(`tyre-${i+1}`);
+                    const valEl = el.querySelector('.digital-font');
+                    valEl.innerText = temps[i] + "°C";
+                    
+                    // Style
+                    if(temps[i] > 105) {
+                        el.classList.remove('tyre-ok', 'tyre-cold');
+                        el.classList.add('tyre-hot');
+                    } else {
+                        el.classList.remove('tyre-hot');
+                        el.classList.add('tyre-ok');
+                    }
+                }
+            }, 100);
+
+            // Trigger Failure Event
+            setTimeout(() => {
+                if(!tyreActive) return;
+                clearInterval(tyreInterval); // Stop random fluctuation
+                
+                // Set 3 to overheat
+                tyreBoxOpen = true;
+                tyreStartTime = performance.now();
+                
+                [0,1,2].forEach(i => {
+                    const el = document.getElementById(`tyre-${i+1}`);
+                    el.querySelector('.digital-font').innerText = "112°C";
+                    el.classList.add('tyre-hot');
+                    el.classList.remove('tyre-ok');
+                });
+                
+                document.getElementById('tyre-msg').innerText = "CRITICAL OVERHEAT!";
+                document.getElementById('tyre-msg').className = "mt-2 text-red-500 font-bold animate-pulse";
+            }, failTime);
+        }
+
+        function tyreBoxClick() {
+            if(!tyreActive) return;
+            
+            if(tyreBoxOpen) {
+                // Success
+                const reaction = (performance.now() - tyreStartTime).toFixed(0);
+                document.getElementById('tyre-msg').innerText = `Box confirmed in ${reaction}ms`;
+                document.getElementById('tyre-msg').className = "mt-2 text-green-500 font-bold";
+                document.getElementById('tyre-box-btn').innerText = "CONFIRMED";
+                document.getElementById('tyre-box-btn').classList.add('bg-green-600');
+                tyreActive = false;
+            } else {
+                // Penalty
+                document.getElementById('tyre-msg').innerText = "False Alarm! Tyres were fine.";
+                document.getElementById('tyre-msg').className = "mt-2 text-red-500";
+                tyreActive = false;
+                clearInterval(tyreInterval);
+            }
+            
+            document.getElementById('tyre-start-btn').classList.remove('hidden');
+            document.getElementById('tyre-start-btn').innerText = "Try Again";
+            document.getElementById('tyre-box-btn').disabled = true;
+        }
+
     </script>
 </body>
 </html>
